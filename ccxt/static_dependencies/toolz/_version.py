@@ -67,50 +67,40 @@ def register_vcs_handler(vcs, method):  # decorator
     return decorate
 
 
-def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False, env=None):
+def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False,
+                env=None):
     """Call the given command(s)."""
     assert isinstance(commands, list)
     p = None
     for c in commands:
         try:
             dispcmd = str([c] + args)
-            p = subprocess.Popen(
-                [c] + args,
-                cwd=cwd,
-                env=env,
-                stdout=subprocess.PIPE,
-                stderr=(subprocess.PIPE if hide_stderr else None),
-            )
+            # remember shell=False, so use git.cmd on windows, not just git
+            p = subprocess.Popen([c] + args, cwd=cwd, env=env,
+                                 stdout=subprocess.PIPE,
+                                 stderr=(subprocess.PIPE if hide_stderr
+                                         else None))
             break
-        except EnvironmentError as e:
-            if getattr(e, "errno", None) == errno.ENOENT:
+        except EnvironmentError:
+            e = sys.exc_info()[1]
+            if e.errno == errno.ENOENT:
                 continue
             if verbose:
-                print(f"unable to run {dispcmd}")
+                print("unable to run %s" % dispcmd)
                 print(e)
             return None, None
     else:
         if verbose:
-            print(f"unable to find command, tried {commands}")
+            print("unable to find command, tried %s" % (commands,))
         return None, None
-
-    stdout_raw = p.communicate()[0]  # может быть bytes или str
-    if isinstance(stdout_raw, bytes):
-        # безопасное декодирование (utf-8 по умолчанию)
-        try:
-            stdout = stdout_raw.decode("utf-8", "replace").strip()
-        except Exception:
-            stdout = stdout_raw.decode(errors="replace").strip()
-    else:
-        # уже str
-        stdout = stdout_raw.strip()
-
+    stdout = p.communicate()[0].strip()
+    if sys.version_info[0] >= 3:
+        stdout = stdout.decode()
     if p.returncode != 0:
         if verbose:
-            print(f"unable to run {dispcmd} (error)")
-            print(f"stdout was {stdout!r}")
+            print("unable to run %s (error)" % dispcmd)
+            print("stdout was %s" % stdout)
         return None, p.returncode
-
     return stdout, p.returncode
 
 
