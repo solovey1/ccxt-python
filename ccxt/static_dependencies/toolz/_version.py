@@ -94,6 +94,25 @@ def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False, env=
             print(f"unable to find command, tried {commands}")
         return None, None
 
+    stdout_raw = p.communicate()[0]  # может быть bytes или str
+    if isinstance(stdout_raw, bytes):
+        # безопасное декодирование (utf-8 по умолчанию)
+        try:
+            stdout = stdout_raw.decode("utf-8", "replace").strip()
+        except Exception:
+            stdout = stdout_raw.decode(errors="replace").strip()
+    else:
+        # уже str
+        stdout = stdout_raw.strip()
+
+    if p.returncode != 0:
+        if verbose:
+            print(f"unable to run {dispcmd} (error)")
+            print(f"stdout was {stdout!r}")
+        return None, p.returncode
+
+    return stdout, p.returncode
+
 
 def versions_from_parentdir(parentdir_prefix, root, verbose):
     """Try to determine the version from the parent directory name.
