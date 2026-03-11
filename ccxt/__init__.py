@@ -88,12 +88,16 @@ from ccxt.binance import binance                                      # noqa: F4
 from ccxt.bingx import bingx                                          # noqa: F401
 from ccxt.bitget import bitget                                        # noqa: F401
 from ccxt.okx import okx                                              # noqa: F401
+from ccxt.bybit import bybit                                          # noqa: F401
+from ccxt.kucoin import kucoin                                        # noqa: F401
 
 exchanges = [
     'binance',
     'bingx',
     'bitget',
     'okx',
+    'bybit',
+    'kucoin'
 ]
 
 base = [

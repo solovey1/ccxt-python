@@ -68,12 +68,16 @@ from ccxt.async_support.binance import binance                                  
 from ccxt.async_support.bingx import bingx                                      # noqa: F401
 from ccxt.async_support.bitget import bitget                                    # noqa: F401
 from ccxt.async_support.okx import okx                                          # noqa: F401
+from ccxt.async_support.bybit import bybit                                      # noqa: F401
+from ccxt.async_support.kucoin import kucoin                                    # noqa: F401
 
 exchanges = [
     'binance',
     'bingx',
     'bitget',
     'okx',
+    'bybit',
+    'kucoin'
 ]
 
 base = [
